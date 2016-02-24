@@ -28,12 +28,13 @@ The filter should be constructed with a key, operator and value to be compared a
 - **Wrong** use: `value == 100`
 
 ## Supported comparison operators
+
 - `==`
--`<`
--`>`
--`<=`
--`>=`
--`!=`
+- `<`
+- `>`
+- `<=`
+- `>=`
+- `!=`
 
 ## Supported logical operators
 - Filtering by multiple keys or values in an object
@@ -103,4 +104,5 @@ An example should explain this better:
 `a==b&c==d|e==f`
 
 This means `a==b&(c==d|e==f)`. There's currently no way to override this behavior, brackets are not supported.
+
 `a==b&c==d|e==f&g==h` translates into `a==b&(c==d|e==f)&g==h`
