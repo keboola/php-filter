@@ -196,15 +196,15 @@ class Filter
 	 */
 	public static function create($filterString)
 	{
-		preg_match("(&|\|)", $filterString, $andOrOperator);
-		if (!empty($andOrOperator[0])) {
-			$andOrOperator = $andOrOperator[0];
-			$filterStrs = explode($andOrOperator, $filterString);
+		preg_match("(&|\|)", $filterString, $logicalOperator);
+		if (!empty($logicalOperator[0])) {
+			$logicalOperator = $logicalOperator[0];
+			$filterStrs = explode($logicalOperator, $filterString);
 
 			foreach($filterStrs as $filterStr) {
 				if (empty($filter)) {
 					$filter = self::create($filterStr);
-					$filter->setMultiOperator($andOrOperator);
+					$filter->setMultiOperator($logicalOperator);
 				} else {
 					$filter->addFilter(self::create($filterStr));
 				}
