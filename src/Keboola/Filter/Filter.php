@@ -47,7 +47,8 @@ class Filter
         ">=",
         "<=",
         "!=",
-        "~~"
+        "~~",
+        "!~"
     ];
 
     /**
@@ -70,7 +71,8 @@ class Filter
         "<=" => "lessOrEquals",
         ">" => "bigger",
         "<" => "less",
-        "~~" => "like"
+        "~~" => "like",
+        "!~" => "unlike",
     ];
 
     /**
@@ -219,7 +221,7 @@ class Filter
             return $filter;
         }
 
-        preg_match("(>=|<=|==|!=|~~)", $filterString, $operator);
+        preg_match("(>=|<=|==|!=|~~|!~)", $filterString, $operator);
 
         if (!empty($operator[0]) && in_array($operator[0], self::$allowedMcOperators)) {
             $operator = $operator[0];
@@ -312,7 +314,18 @@ class Filter
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
         return $ret == 1;
-        //return $value1 == $value2;
+    }
+
+    /**
+     * @param mixed $value1
+     * @param mixed $value2
+     * @return bool
+     */
+    public static function unlike($value1, $value2)
+    {
+        $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
+        $ret = preg_match($regexp, $value1);
+        return $ret == 0;
     }
 
     /**
