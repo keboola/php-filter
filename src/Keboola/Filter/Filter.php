@@ -3,7 +3,6 @@
 namespace Keboola\Filter;
 
 use Keboola\Filter\Exception\FilterException;
-use Keboola\Utils\Utils;
 
 /**
  * Filter objects using simple configuration strings
@@ -172,7 +171,7 @@ class Filter
      */
     public function compareObject(\stdClass $object)
     {
-        $value = Utils::getDataFromPath($this->columnName, $object, ".");
+        $value = \Keboola\Utils\getDataFromPath($this->columnName, $object, ".");
         if (empty($this->multiFilter)) {
             return $this->compare($value);
         } else {
