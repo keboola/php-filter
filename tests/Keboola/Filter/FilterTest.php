@@ -27,6 +27,20 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($filter->compareObject($object), false);
     }
 
+    public function testCompareNull()
+    {
+        $object = new \stdClass();
+        $object->field2 = null;
+        $object->field3 = 'null';
+
+        $filter = Filter::create("field2==");
+        $this->assertTrue($filter->compareObject($object));
+        $filter = Filter::create("field2!=");
+        $this->assertFalse($filter->compareObject($object));
+        $filter = Filter::create("field3==null");
+        $this->assertTrue($filter->compareObject($object));
+    }
+
     public function testCompareString()
     {
         $object = new \stdClass();
@@ -135,7 +149,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $filter = Filter::create("field4!~%test%");
         $this->assertEquals($filter->compareObject($object), false);
     }
-    
+
     public function testCompareStringComplex()
     {
         $object = new \stdClass();
