@@ -1,20 +1,23 @@
 <?php
 
-use Keboola\Filter\Filter;
+namespace Keboola\Filter\Tests;
 
-class FilterTest extends \PHPUnit_Framework_TestCase
+use Keboola\Filter\Filter;
+use PHPUnit\Framework\TestCase;
+
+class FilterTest extends TestCase
 {
     public function testStaticCompare()
     {
-        $this->assertEquals(Filter::staticCompare("test!#$#%$%{}", "test!#$#%$%{}", "=="), true);
-        $this->assertEquals(Filter::staticCompare("test", "test", "!="), false);
+        self::assertTrue(Filter::staticCompare("test!#$#%$%{}", "test!#$#%$%{}", "=="));
+        self::assertFalse(Filter::staticCompare("test", "test", "!="));
     }
 
     public function testCompare()
     {
         $filter = new Filter(".", ">", 1);
-        $this->assertEquals($filter->compare(2), true);
-        $this->assertEquals($filter->compare(0), false);
+        self::assertTrue($filter->compare(2));
+        self::assertFalse($filter->compare(0));
     }
 
     public function testCompareObject()
@@ -22,9 +25,9 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $filter = new Filter("field", "<=", 1);
         $object = new \stdClass();
         $object->field = 0;
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $object->field = 2;
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
     }
 
     public function testCompareNull()
@@ -34,11 +37,11 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object->field3 = 'null';
 
         $filter = Filter::create("field2==");
-        $this->assertTrue($filter->compareObject($object));
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2!=");
-        $this->assertFalse($filter->compareObject($object));
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3==null");
-        $this->assertTrue($filter->compareObject($object));
+        self::assertTrue($filter->compareObject($object));
     }
 
     public function testCompareString()
@@ -50,49 +53,49 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object->field4 = 'sometesting';
 
         $filter = Filter::create("field1==test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2==test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3==test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field4==test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         $filter = Filter::create("field1~~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2~~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3~~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field4~~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         $filter = Filter::create("field1~~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2~~%test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field2~~test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2~~%test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $filter = Filter::create("field3~~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3~~test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3~~%test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field3~~%test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $filter = Filter::create("field4~~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field4~~test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field4~~%test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field4~~%test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
     }
 
 
@@ -105,49 +108,49 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object->field4 = 'sometesting';
 
         $filter = Filter::create("field1!=test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field2!=test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field3!=test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field4!=test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $filter = Filter::create("field1!~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field2!~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field3!~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field4!~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $filter = Filter::create("field1!~test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field2!~%test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2!~test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field2!~%test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         $filter = Filter::create("field3!~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field3!~test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field3!~%test");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
         $filter = Filter::create("field3!~%test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         $filter = Filter::create("field4!~test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field4!~test%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field4!~~%test");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field4!~%test%");
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
     }
 
     public function testCompareStringComplex()
@@ -157,17 +160,17 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object->field2 = 'terrorist';
 
         $filter = Filter::create("field1~~te%st");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2~~te%st");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $object = new \stdClass();
         $object->field1 = 'testtesttest';
         $object->field2 = 'testtesttest';
         $filter = Filter::create("field1~~%st%st");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
         $filter = Filter::create("field2~~te%te%");
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
     }
 
     public function testCompareMulti()
@@ -178,10 +181,10 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object = new \stdClass();
         $object->field1 = 0;
         $object->field2 = 1;
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $object->field2 = 0;
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         // |
         $filter = Filter::create("field1==0|field2!=0");
@@ -189,14 +192,14 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object = new \stdClass();
         $object->field1 = 0;
         $object->field2 = 1;
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $object->field2 = 0;
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $object->field1 = 1;
         $object->field2 = 0;
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
 
         // & + |
         $filter = Filter::create("a==b&c==d|e==f");
@@ -204,11 +207,11 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $object->a = "b";
         $object->c = "d";
         $object->e = "nope";
-        $this->assertEquals($filter->compareObject($object), true);
+        self::assertTrue($filter->compareObject($object));
 
         $object->a = "b";
         $object->c = "nope";
         $object->e = "nope";
-        $this->assertEquals($filter->compareObject($object), false);
+        self::assertFalse($filter->compareObject($object));
     }
 }

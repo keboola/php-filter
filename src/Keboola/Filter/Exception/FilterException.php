@@ -1,6 +1,6 @@
 <?php
 namespace Keboola\Filter\Exception;
 
-class FilterException extends \Exception 
+class FilterException extends \Exception
 {
 }
