@@ -167,7 +167,6 @@ class Filter
      * @param \stdClass $object
      * @return bool
      * @throws FilterException
-     * @api
      */
     public function compareObject(\stdClass $object)
     {
@@ -200,7 +199,6 @@ class Filter
      * @param string $filterString
      * @return Filter
      * @throws FilterException
-     * @api
      */
     public static function create($filterString)
     {
@@ -208,7 +206,8 @@ class Filter
         if (!empty($logicalOperator[0])) {
             $logicalOperator = $logicalOperator[0];
             $filterStrs = explode($logicalOperator, $filterString);
-
+            /** @var Filter $filter */
+            $filter = null;
             foreach ($filterStrs as $filterStr) {
                 if (empty($filter)) {
                     $filter = self::create($filterStr);
@@ -234,7 +233,8 @@ class Filter
         $allowedOperators = array_merge(self::$allowedMcOperators, self::$allowedScOperators);
         if (empty($operator) || !in_array($operator, $allowedOperators)) {
             throw new FilterException(
-                "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" . join(", ", $allowedOperators) . "]"
+                "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" .
+                join(", ", $allowedOperators) . "]"
             );
         }
 
@@ -248,7 +248,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function equals($value1, $value2)
+    protected static function equals($value1, $value2)
     {
         return $value1 == $value2;
     }
@@ -258,7 +258,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function unequals($value1, $value2)
+    protected static function unequals($value1, $value2)
     {
         return $value1 != $value2;
     }
@@ -268,7 +268,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function biggerOrEquals($value1, $value2)
+    protected static function biggerOrEquals($value1, $value2)
     {
         return $value1 >= $value2;
     }
@@ -278,7 +278,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function lessOrEquals($value1, $value2)
+    protected static function lessOrEquals($value1, $value2)
     {
         return $value1 <= $value2;
     }
@@ -288,7 +288,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function bigger($value1, $value2)
+    protected static function bigger($value1, $value2)
     {
         return $value1 > $value2;
     }
@@ -298,7 +298,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function less($value1, $value2)
+    protected static function less($value1, $value2)
     {
         return $value1 < $value2;
     }
@@ -308,7 +308,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function like($value1, $value2)
+    protected static function like($value1, $value2)
     {
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
@@ -320,7 +320,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    public static function unlike($value1, $value2)
+    protected static function unlike($value1, $value2)
     {
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
@@ -338,7 +338,7 @@ class Filter
     /**
      * @return string
      */
-    public function getOperator()
+    protected function getOperator()
     {
         return $this->operator;
     }
@@ -347,7 +347,7 @@ class Filter
      * Set value to compare against
      * @param string $value
      */
-    public function setValue($value)
+    protected function setValue($value)
     {
         $this->value = $value;
     }
@@ -355,7 +355,7 @@ class Filter
     /**
      * @return string
      */
-    public function getValue()
+    protected function getValue()
     {
         return $this->value;
     }
