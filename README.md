@@ -2,7 +2,9 @@
 
 ## Description
 Compare values in objects against pre-set values in the filter.
-The filter should be constructed with a key, operator and value to be compared against. Then an object is passed to the filter and evaluated whether it passes the filter or not.
+The filter should be constructed with a key, operator and value 
+to be compared against. Then an object is passed to the filter 
+and evaluated whether it passes the filter or not.
 
 ## Usage
 
@@ -23,7 +25,8 @@ The filter should be constructed with a key, operator and value to be compared a
         ];
         $result = $filter->compareObject($object); // true
 ```
-- The filter is whitespace sensitive, therefore `value == 100` will look into `value␣` for a `␣100` value, instead of `value` and `100` as likely desired.
+- The filter is whitespace sensitive, therefore `value == 100` will look into `value␣` for a `␣100` value, 
+instead of `value` and `100` as likely desired.
 - **Correct** use: `value==100`
 - **Wrong** use: `value == 100`
 
@@ -97,7 +100,8 @@ While this will return `false`.
 ...and this will return `false`
 
 ### Combining logical operators
-At the current implementation, the **first** logical operator from the left is used as a "major" or operator, and then every other occurence takes precedence over the other operator.
+At the current implementation, the **first** logical operator from the left is used as a "major" or operator, 
+and then every other occurrence takes precedence over the other operator.
 
 An example should explain this better:
 

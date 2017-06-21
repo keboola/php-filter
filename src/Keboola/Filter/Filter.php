@@ -26,31 +26,6 @@ class Filter
     protected $value;
 
     /**
-     * @var Filter[]
-     */
-    protected $multiFilter = [];
-
-    /**
-     * | or &
-     * @var string
-     */
-    protected $multiOperator;
-
-    /**
-     * Allowed multi-character comparison operators
-     * @todo use array_keys from $methodList?
-     * @var array
-     */
-    protected static $allowedMcOperators = [
-        "==",
-        ">=",
-        "<=",
-        "!=",
-        "~~",
-        "!~"
-    ];
-
-    /**
      * Allowed single-character comparison operators
      * @var array
      */
@@ -75,63 +50,34 @@ class Filter
     ];
 
     /**
-     * Allowed comparison operators
-     * @var array
+     * @param $filterString
+     * @throws FilterException In case the filter is not recognized
      */
-    protected $allowedOperators = [];
-
-    /**
-     * @param string $columnName A key to use for comparison within an object
-     * @param string $operator
-     * @param mixed $value Value to compare against
-     * @throws FilterException In case operator is unrecognized.
-     */
-    public function __construct($columnName, $operator, $value)
+    public function __construct($filterString)
     {
+        preg_match("(>=|<=|==|!=|~~|!~)", $filterString, $operator);
+
+        if (!empty($operator[0]) && in_array($operator[0], array_keys(self::$methodList))) {
+            $operator = $operator[0];
+        } else {
+            preg_match("(>|<)", $filterString, $operator);
+            if (!empty($operator[0]) && in_array($operator[0], self::$allowedScOperators)) {
+                $operator = $operator[0];
+            }
+        }
+
+        $allowedOperators = array_merge(array_keys(self::$methodList), self::$allowedScOperators);
+        if (empty($operator) || !in_array($operator, $allowedOperators)) {
+            throw new FilterException(
+                "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" .
+                implode(", ", $allowedOperators) . "]"
+            );
+        }
+
+        list($columnName, $value) = explode($operator, $filterString);
         $this->columnName = $columnName;
         $this->operator = $operator;
         $this->value = $value;
-        $this->allowedOperators = array_merge(self::$allowedMcOperators, self::$allowedScOperators);
-
-        if (!in_array($operator, $this->allowedOperators)) {
-            throw new FilterException("Ilegal operator '{$operator}'!");
-        }
-    }
-
-    /**
-     * Add more filters to an existing one
-     * @param Filter $filter
-     * @throws FilterException
-     * @fixme this design is far from ideal!
-     */
-    public function addFilter(self $filter)
-    {
-        if (empty($this->multiOperator)) {
-            throw new FilterException("MultiOperator must be set before adding multiple filters.");
-        }
-
-        // seriously, FIXME
-        // Anyway, add self to the multifilter, so it is run before the next added filter
-        // Could add first filter in create:: or __construct, and use a count() > 1 in compareObject
-        if (empty($this->multiFilter)) {
-            $this->multiFilter[] = new self($this->getColumnName(), $this->getOperator(), $this->getValue());
-        }
-
-        $this->multiFilter[] = $filter;
-    }
-
-    /**
-     * Set | or & operator for multiple filters
-     * @param string $operator
-     * @throws FilterException
-     */
-    public function setMultiOperator($operator)
-    {
-        if (!in_array($operator, ['|', "&"])) {
-            throw new FilterException("Invalid MultiOperator '{$operator}'");
-        }
-
-        $this->multiOperator = $operator;
     }
 
     /**
@@ -171,76 +117,7 @@ class Filter
     public function compareObject(\stdClass $object)
     {
         $value = \Keboola\Utils\getDataFromPath($this->columnName, $object, ".");
-        if (empty($this->multiFilter)) {
-            return $this->compare($value);
-        } else {
-            if ($this->multiOperator == "&") {
-                foreach ($this->multiFilter as $filter) {
-                    if (!$filter->compareObject($object)) {
-                        return false;
-                    }
-                }
-                return true;
-            } elseif ($this->multiOperator == "|") {
-                foreach ($this->multiFilter as $filter) {
-                    if ($filter->compareObject($object)) {
-                        return true;
-                    }
-                }
-                return false;
-            } else {
-                throw new FilterException("MultiFilter is set but MultiOperator is not recognized.");
-            }
-        }
-    }
-
-    /**
-     * Create a filter from a "column==value" like string
-     * @param string $filterString
-     * @return Filter
-     * @throws FilterException
-     */
-    public static function create($filterString)
-    {
-        preg_match("(&|\\|)", $filterString, $logicalOperator);
-        if (!empty($logicalOperator[0])) {
-            $logicalOperator = $logicalOperator[0];
-            $filterStrs = explode($logicalOperator, $filterString);
-            /** @var Filter $filter */
-            $filter = null;
-            foreach ($filterStrs as $filterStr) {
-                if (empty($filter)) {
-                    $filter = self::create($filterStr);
-                    $filter->setMultiOperator($logicalOperator);
-                } else {
-                    $filter->addFilter(self::create($filterStr));
-                }
-            }
-            return $filter;
-        }
-
-        preg_match("(>=|<=|==|!=|~~|!~)", $filterString, $operator);
-
-        if (!empty($operator[0]) && in_array($operator[0], self::$allowedMcOperators)) {
-            $operator = $operator[0];
-        } else {
-            preg_match("(>|<)", $filterString, $operator);
-            if (!empty($operator[0]) && in_array($operator[0], self::$allowedScOperators)) {
-                $operator = $operator[0];
-            }
-        }
-
-        $allowedOperators = array_merge(self::$allowedMcOperators, self::$allowedScOperators);
-        if (empty($operator) || !in_array($operator, $allowedOperators)) {
-            throw new FilterException(
-                "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" .
-                join(", ", $allowedOperators) . "]"
-            );
-        }
-
-        list($columnName, $value) = explode($operator, $filterString);
-
-        return new self($columnName, $operator, $value);
+        return $this->compare($value);
     }
 
     /**
@@ -341,15 +218,6 @@ class Filter
     protected function getOperator()
     {
         return $this->operator;
-    }
-
-    /**
-     * Set value to compare against
-     * @param string $value
-     */
-    protected function setValue($value)
-    {
-        $this->value = $value;
     }
 
     /**
