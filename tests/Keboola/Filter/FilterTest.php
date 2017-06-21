@@ -2,20 +2,72 @@
 
 namespace Keboola\Filter\Tests;
 
+use Keboola\Filter\Exception\FilterException;
 use Keboola\Filter\Filter;
 use Keboola\Filter\FilterFactory;
 use PHPUnit\Framework\TestCase;
 
 class FilterTest extends TestCase
 {
-    public function testCompareObject()
+    public function testGetters()
+    {
+        $filter = new Filter("field>=1");
+        self::assertEquals('field', $filter->getColumnName());
+        self::assertEquals('>=', $filter->getOperator());
+        self::assertEquals('1', $filter->getValue());
+    }
+
+    public function testInvalidOp()
+    {
+        try {
+            new Filter("field+1");
+        } catch (FilterException $e) {
+            self::assertContains('Error creating a filter from field+1', $e->getMessage());
+        }
+    }
+
+    public function testCompareLessThanOrEquals()
     {
         $filter = new Filter("field<=1");
         $object = new \stdClass();
         $object->field = 0;
         self::assertTrue($filter->compareObject($object));
+        $object->field = 1;
+        self::assertTrue($filter->compareObject($object));
         $object->field = 2;
         self::assertFalse($filter->compareObject($object));
+    }
+
+    public function testCompareGreaterThanOrEquals()
+    {
+        $filter = new Filter("field>=1");
+        $object = new \stdClass();
+        $object->field = 0;
+        self::assertFalse($filter->compareObject($object));
+        $object->field = 1;
+        self::assertTrue($filter->compareObject($object));
+        $object->field = 2;
+        self::assertTrue($filter->compareObject($object));
+    }
+
+    public function testCompareLessThan()
+    {
+        $filter = new Filter("field<1");
+        $object = new \stdClass();
+        $object->field = 0;
+        self::assertTrue($filter->compareObject($object));
+        $object->field = 1;
+        self::assertFalse($filter->compareObject($object));
+    }
+
+    public function testCompareGreaterThan()
+    {
+        $filter = new Filter("field>1");
+        $object = new \stdClass();
+        $object->field = 1;
+        self::assertFalse($filter->compareObject($object));
+        $object->field = 2;
+        self::assertTrue($filter->compareObject($object));
     }
 
     public function testCompareNull()
