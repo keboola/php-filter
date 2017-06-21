@@ -204,7 +204,6 @@ class FilterTest extends TestCase
 
     public function testCompareMultiCompound()
     {
-        // & + |
         $filter = Filter::create("a==b&c==d|e==f");
         $object = new \stdClass();
         $object->a = "b";
@@ -216,5 +215,89 @@ class FilterTest extends TestCase
         $object->c = "nope";
         $object->e = "nope";
         self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        self::assertTrue($filter->compareObject($object));
     }
+
+    public function testCompareMultiCompoundReverse()
+    {
+        $filter = Filter::create("e==f|a==b&c==d");
+        $object = new \stdClass();
+        $object->a = "b";
+        $object->c = "d";
+        $object->e = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        self::assertTrue($filter->compareObject($object));
+    }
+
+    public function testCompareMultiCompoundComplexOr()
+    {
+        $filter = Filter::create("g==h|e==f|a==b&c==d");
+        $object = new \stdClass();
+        $object->a = "b";
+        $object->c = "d";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "nope";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "h";
+        self::assertTrue($filter->compareObject($object));
+    }
+
+    public function testCompareMultiCompoundComplexAnd()
+    {
+        $filter = Filter::create("g==h|e==f&c==d&a==b");
+        $object = new \stdClass();
+        $object->a = "b";
+        $object->c = "d";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "nope";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "h";
+        self::assertTrue($filter->compareObject($object));
+    }
+
 }
