@@ -4,10 +4,16 @@ engines:
     config:
       languages:
       - php
+    exclude_paths:
+      - tests/
   fixme:
     enabled: true
   phpmd:
     enabled: true
     checks:
       CleanCode/ElseExpression:
+        enabled: false
+      CleanCode/StaticAccess:
+        enabled: false
+      Naming/ShortVariable:
         enabled: false
