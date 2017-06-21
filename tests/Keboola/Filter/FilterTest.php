@@ -300,4 +300,61 @@ class FilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
+    public function testCompareMultiCompoundComplexOrReverse()
+    {
+        $filter = Filter::create("a==b&c==d|g==h|e==f");
+        $object = new \stdClass();
+        $object->a = "b";
+        $object->c = "d";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "nope";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "h";
+        self::assertTrue($filter->compareObject($object));
+    }
+
+    public function testCompareMultiCompoundComplexAndReverse()
+    {
+        $filter = Filter::create("c==d&a==b&g==h|e==f");
+        $object = new \stdClass();
+        $object->a = "b";
+        $object->c = "d";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertTrue($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "b";
+        $object->c = "nope";
+        $object->e = "f";
+        $object->g = "nope";
+        self::assertFalse($filter->compareObject($object));
+
+        $object->a = "nope";
+        $object->c = "nope";
+        $object->e = "nope";
+        $object->g = "h";
+        self::assertTrue($filter->compareObject($object));
+    }
 }
