@@ -2,48 +2,68 @@
 
 ## Description
 Compare values in objects against pre-set values in the filter.
-The filter should be constructed with a key, operator and value to be compared against. Then an object is passed to the filter and evaluated whether it passes the filter or not.
+The filter is constructed from a string with a key (field name in 
+the the object), operator and a value to be compared against. 
+Then an object is passed to the filter and evaluated whether it 
+passes the filter or not.
 
 ## Usage
 
 ```php
-        use Keboola\Filter\Filter;
+use Keboola\Filter\Filter;
 
-        // Compare the `.` object (can be a scalar) and check if it's larger than 1
-        $filter = new Filter(".", ">", 1);
-        $filter->compare(2); // true
-        $filter->compare(0); // false
+// Compare the `shoeSize` property of John
+$john = new \stdClass();
+$john->shoeSize = 45;
+$filter = FilterFactory::create("shoeSize>42");
+$filter->compareObject($john); // true
 
-        // Multiple values to compare from a filter string
-        $filter = Filter::create("field1==0&field2!=0");
-
-        $object = (object) [
-            'field1' => 0,
-            'field2' => 1
-        ];
-        $result = $filter->compareObject($object); // true
+// Multiple conditions can be used
+$filter = FilterFactory::create("field1==0&field2!=0");
+$object = (object) [
+    'field1' => 0,
+    'field2' => 1
+];
+$result = $filter->compareObject($object); // true
 ```
-- The filter is whitespace sensitive, therefore `value == 100` will look into `value␣` for a `␣100` value, instead of `value` and `100` as likely desired.
+
+- The filter is whitespace sensitive, therefore `value == 100` will look 
+into `value␣` for a `␣100` value, instead of `value` and `100` as likely desired.
 - **Correct** use: `value==100`
 - **Wrong** use: `value == 100`
 
 ## Supported comparison operators
 
-- `==`
-- `<`
-- `>`
-- `<=`
-- `>=`
-- `!=`
+- `<` -- less than
+- `>` -- greater than
+- `==` -- equals
+- `<=` -- less or equals
+- `>=` -- greater or equals
+- `!=` -- not equals
+- `~~` -- like
+- `!~` -- not like
+
+### Like operator
+Like (and not like) operator allows you to use partial matching. Use a 
+percent `%` character in the target value to match any number of characters, e.g.:
+ 
+```php
+use Keboola\Filter\Filter;
+
+// Compare the `shoeSize` property of John
+$john = new \stdClass();
+$john->name = "Johnny";
+$filter = FilterFactory::create("name~~Johnny");
+$filter->compareObject($john); // true
+```
 
 ## Supported logical operators
-- Filtering by multiple keys or values in an object
-- Use if you need to compare more than one value in the object
-- OR Use if you want to filter by more possible values in a key
+With logical operators you can combine multiple conditions together.
+You can combine both conditions with different values and conditions
+with different keys. Supported logical operators:
 
-### Supported operators
-- `&`
-- `|`
+- `&` -- logical and
+- `|` -- logical or
 
 ### Usage
 - Case 1: Object's `status` must be `enabled` and `age` must be over `18`
@@ -51,58 +71,53 @@ The filter should be constructed with a key, operator and value to be compared a
 `status==enabled&age>18`
 
 ```
-    {
-        'status': 'enabled',
-        'age': 20
-    }
+{
+    'status': 'enabled',
+    'age': 20
+}
 ```
 
 `compareObject` on this object will return `true`.
 
 ```
-    {
-        'status': 'enabled',
-        'age': 15
-    }
+{
+    'status': 'enabled',
+    'age': 15
+}
 ```
 
-While this will return `false`.
+`compareObject` on this object will return `false`.
 
 - Case 2: Object's `status` must be `new` or `udated`
 
 `status==new|status==updated`
 
 ```
-    {
-        'status': 'new'
-    }
+{
+    'status': 'new'
+}
 ```
 
-...passes the filter (`true`)
+`compareObject` on this object will return `true`.
 
 ```
-    {
-        'status': 'updated'
-    }
+{
+    'status': 'updated'
+}
 ```
 
-...also returns `true`
+`compareObject` on this object will return `true`.
 
 ```
-    {
-        'status': 'closed'
-    }
+{
+    'status': 'closed'
+}
 ```
 
-...and this will return `false`
+`compareObject` on this object will return `false`.
 
 ### Combining logical operators
-At the current implementation, the **first** logical operator from the left is used as a "major" or operator, and then every other occurence takes precedence over the other operator.
-
-An example should explain this better:
-
-`a==b&c==d|e==f`
-
-This means `a==b&(c==d|e==f)`. There's currently no way to override this behavior, brackets are not supported.
-
-`a==b&c==d|e==f&g==h` translates into `a==b&(c==d|e==f)&g==h`
+Parentheses are not supported, however the standard operator precedence is
+applied (`&` precedes `|`). For example, the expression
+`a==b&c==d|e==f` is interpreted as `(a==b&c==d)|e==f` and the  
+expression `a==b&c==d|e==f&g==h` translates into `(a==b&c==d)|(e==f&g==h)`.

@@ -3,26 +3,14 @@
 namespace Keboola\Filter\Tests;
 
 use Keboola\Filter\Filter;
+use Keboola\Filter\FilterFactory;
 use PHPUnit\Framework\TestCase;
 
 class FilterTest extends TestCase
 {
-    public function testStaticCompare()
-    {
-        self::assertTrue(Filter::staticCompare("test!#$#%$%{}", "test!#$#%$%{}", "=="));
-        self::assertFalse(Filter::staticCompare("test", "test", "!="));
-    }
-
-    public function testCompare()
-    {
-        $filter = new Filter(".", ">", 1);
-        self::assertTrue($filter->compare(2));
-        self::assertFalse($filter->compare(0));
-    }
-
     public function testCompareObject()
     {
-        $filter = new Filter("field", "<=", 1);
+        $filter = new Filter("field<=1");
         $object = new \stdClass();
         $object->field = 0;
         self::assertTrue($filter->compareObject($object));
@@ -36,11 +24,11 @@ class FilterTest extends TestCase
         $object->field2 = null;
         $object->field3 = 'null';
 
-        $filter = Filter::create("field2==");
+        $filter = FilterFactory::create("field2==");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2!=");
+        $filter = FilterFactory::create("field2!=");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3==null");
+        $filter = FilterFactory::create("field3==null");
         self::assertTrue($filter->compareObject($object));
     }
 
@@ -52,49 +40,49 @@ class FilterTest extends TestCase
         $object->field3 = 'sometest';
         $object->field4 = 'sometesting';
 
-        $filter = Filter::create("field1==test");
+        $filter = FilterFactory::create("field1==test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2==test");
+        $filter = FilterFactory::create("field2==test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3==test");
+        $filter = FilterFactory::create("field3==test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field4==test");
+        $filter = FilterFactory::create("field4==test");
         self::assertFalse($filter->compareObject($object));
 
-        $filter = Filter::create("field1~~test");
+        $filter = FilterFactory::create("field1~~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2~~test");
+        $filter = FilterFactory::create("field2~~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3~~test");
+        $filter = FilterFactory::create("field3~~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field4~~test");
+        $filter = FilterFactory::create("field4~~test");
         self::assertFalse($filter->compareObject($object));
 
-        $filter = Filter::create("field1~~test");
+        $filter = FilterFactory::create("field1~~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2~~%test");
+        $filter = FilterFactory::create("field2~~%test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field2~~test%");
+        $filter = FilterFactory::create("field2~~test%");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2~~%test%");
-        self::assertTrue($filter->compareObject($object));
-
-        $filter = Filter::create("field3~~test");
-        self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3~~test%");
-        self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3~~%test");
-        self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field3~~%test%");
+        $filter = FilterFactory::create("field2~~%test%");
         self::assertTrue($filter->compareObject($object));
 
-        $filter = Filter::create("field4~~test");
+        $filter = FilterFactory::create("field3~~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field4~~test%");
+        $filter = FilterFactory::create("field3~~test%");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field4~~%test");
+        $filter = FilterFactory::create("field3~~%test");
+        self::assertTrue($filter->compareObject($object));
+        $filter = FilterFactory::create("field3~~%test%");
+        self::assertTrue($filter->compareObject($object));
+
+        $filter = FilterFactory::create("field4~~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field4~~%test%");
+        $filter = FilterFactory::create("field4~~test%");
+        self::assertFalse($filter->compareObject($object));
+        $filter = FilterFactory::create("field4~~%test");
+        self::assertFalse($filter->compareObject($object));
+        $filter = FilterFactory::create("field4~~%test%");
         self::assertTrue($filter->compareObject($object));
     }
 
@@ -107,49 +95,49 @@ class FilterTest extends TestCase
         $object->field3 = 'sometest';
         $object->field4 = 'sometesting';
 
-        $filter = Filter::create("field1!=test");
+        $filter = FilterFactory::create("field1!=test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field2!=test");
+        $filter = FilterFactory::create("field2!=test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field3!=test");
+        $filter = FilterFactory::create("field3!=test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field4!=test");
+        $filter = FilterFactory::create("field4!=test");
         self::assertTrue($filter->compareObject($object));
 
-        $filter = Filter::create("field1!~test");
+        $filter = FilterFactory::create("field1!~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field2!~test");
+        $filter = FilterFactory::create("field2!~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field3!~test");
+        $filter = FilterFactory::create("field3!~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field4!~test");
+        $filter = FilterFactory::create("field4!~test");
         self::assertTrue($filter->compareObject($object));
 
-        $filter = Filter::create("field1!~test");
+        $filter = FilterFactory::create("field1!~test");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field2!~%test");
+        $filter = FilterFactory::create("field2!~%test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2!~test%");
+        $filter = FilterFactory::create("field2!~test%");
         self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field2!~%test%");
-        self::assertFalse($filter->compareObject($object));
-
-        $filter = Filter::create("field3!~test");
-        self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field3!~test%");
-        self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field3!~%test");
-        self::assertFalse($filter->compareObject($object));
-        $filter = Filter::create("field3!~%test%");
+        $filter = FilterFactory::create("field2!~%test%");
         self::assertFalse($filter->compareObject($object));
 
-        $filter = Filter::create("field4!~test");
+        $filter = FilterFactory::create("field3!~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field4!~test%");
+        $filter = FilterFactory::create("field3!~test%");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field4!~~%test");
+        $filter = FilterFactory::create("field3!~%test");
+        self::assertFalse($filter->compareObject($object));
+        $filter = FilterFactory::create("field3!~%test%");
+        self::assertFalse($filter->compareObject($object));
+
+        $filter = FilterFactory::create("field4!~test");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field4!~%test%");
+        $filter = FilterFactory::create("field4!~test%");
+        self::assertTrue($filter->compareObject($object));
+        $filter = FilterFactory::create("field4!~~%test");
+        self::assertTrue($filter->compareObject($object));
+        $filter = FilterFactory::create("field4!~%test%");
         self::assertFalse($filter->compareObject($object));
     }
 
@@ -159,59 +147,17 @@ class FilterTest extends TestCase
         $object->field1 = 'test';
         $object->field2 = 'terrorist';
 
-        $filter = Filter::create("field1~~te%st");
+        $filter = FilterFactory::create("field1~~te%st");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2~~te%st");
+        $filter = FilterFactory::create("field2~~te%st");
         self::assertTrue($filter->compareObject($object));
 
         $object = new \stdClass();
         $object->field1 = 'testtesttest';
         $object->field2 = 'testtesttest';
-        $filter = Filter::create("field1~~%st%st");
+        $filter = FilterFactory::create("field1~~%st%st");
         self::assertTrue($filter->compareObject($object));
-        $filter = Filter::create("field2~~te%te%");
+        $filter = FilterFactory::create("field2~~te%te%");
         self::assertTrue($filter->compareObject($object));
-    }
-
-    public function testCompareMulti()
-    {
-        // &
-        $filter = Filter::create("field1==0&field2!=0");
-
-        $object = new \stdClass();
-        $object->field1 = 0;
-        $object->field2 = 1;
-        self::assertTrue($filter->compareObject($object));
-
-        $object->field2 = 0;
-        self::assertFalse($filter->compareObject($object));
-
-        // |
-        $filter = Filter::create("field1==0|field2!=0");
-
-        $object = new \stdClass();
-        $object->field1 = 0;
-        $object->field2 = 1;
-        self::assertTrue($filter->compareObject($object));
-
-        $object->field2 = 0;
-        self::assertTrue($filter->compareObject($object));
-
-        $object->field1 = 1;
-        $object->field2 = 0;
-        self::assertFalse($filter->compareObject($object));
-
-        // & + |
-        $filter = Filter::create("a==b&c==d|e==f");
-        $object = new \stdClass();
-        $object->a = "b";
-        $object->c = "d";
-        $object->e = "nope";
-        self::assertTrue($filter->compareObject($object));
-
-        $object->a = "b";
-        $object->c = "nope";
-        $object->e = "nope";
-        self::assertFalse($filter->compareObject($object));
     }
 }

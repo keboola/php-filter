@@ -1,10 +1,4 @@
 vendor/
-/data/
 .idea/
 build/
-.kdev4
-*.kdev4
-composer.phar
 composer.lock
-codeclimate.json
-
