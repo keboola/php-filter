@@ -4,7 +4,7 @@ namespace Keboola\Filter;
 
 use Keboola\Filter\Exception\FilterException;
 
-class MultiFilter implements FilterInterface
+class CompoundFilter implements FilterInterface
 {
     /**
      * @var array
@@ -12,7 +12,7 @@ class MultiFilter implements FilterInterface
     private $expression;
 
     /**
-     * MultiFilter constructor.
+     * CompoundFilter constructor.
      * @param array $logicalExpression
      */
     public function __construct(array $logicalExpression)

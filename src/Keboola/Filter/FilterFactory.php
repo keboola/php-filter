@@ -12,7 +12,7 @@ class FilterFactory
     {
         $logicalExpressions = preg_split("#(&|\\|)#", $filterString, -1, PREG_SPLIT_DELIM_CAPTURE);
         if (count($logicalExpressions) > 1) {
-            $filter = new MultiFilter($logicalExpressions);
+            $filter = new CompoundFilter($logicalExpressions);
         } else {
             $filter = new Filter($logicalExpressions[0]);
         }

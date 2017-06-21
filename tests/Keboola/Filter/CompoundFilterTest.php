@@ -4,30 +4,30 @@ namespace Keboola\Filter\Tests;
 
 use Keboola\Filter\Exception\FilterException;
 use Keboola\Filter\FilterFactory;
-use Keboola\Filter\MultiFilter;
+use Keboola\Filter\CompoundFilter;
 use PHPUnit\Framework\TestCase;
 
-class MultiFilterTest extends TestCase
+class CompoundFilterTest extends TestCase
 {
-    public function testInvalidMultiFilter()
+    public function testInvalidCompoundFilter()
     {
         try {
-            new MultiFilter(["field1==0", "&"]);
+            new CompoundFilter(["field1==0", "&"]);
         } catch (FilterException $e) {
             self::assertContains('Invalid syntax in logical expression', $e->getMessage());
         }
     }
 
-    public function testInvalidMultiFilter2()
+    public function testInvalidCompoundFilter2()
     {
         try {
-            new MultiFilter(["field1==0", "+", "field2==0"]);
+            new CompoundFilter(["field1==0", "+", "field2==0"]);
         } catch (FilterException $e) {
             self::assertContains('Invalid logical operator: \'+\'.', $e->getMessage());
         }
     }
 
-    public function testCompareMultiAnd()
+    public function testCompareCompoundAnd()
     {
         $filter = FilterFactory::create("field1==0&field2!=0");
 
@@ -40,7 +40,7 @@ class MultiFilterTest extends TestCase
         self::assertFalse($filter->compareObject($object));
     }
 
-    public function testCompareMultiOr()
+    public function testCompareCompoundOr()
     {
         $filter = FilterFactory::create("field1==0|field2!=0");
         $object = new \stdClass();
@@ -56,7 +56,7 @@ class MultiFilterTest extends TestCase
         self::assertFalse($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompound()
+    public function testCompareCompoundCompound()
     {
         $filter = FilterFactory::create("a==b&c==d|e==f");
         $object = new \stdClass();
@@ -76,7 +76,7 @@ class MultiFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompoundReverse()
+    public function testCompareCompoundCompoundReverse()
     {
         $filter = FilterFactory::create("e==f|a==b&c==d");
         $object = new \stdClass();
@@ -96,7 +96,7 @@ class MultiFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompoundComplexOr()
+    public function testCompareCompoundCompoundComplexOr()
     {
         $filter = FilterFactory::create("g==h|e==f|a==b&c==d");
         $object = new \stdClass();
@@ -125,7 +125,7 @@ class MultiFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompoundComplexAnd()
+    public function testCompareCompoundCompoundComplexAnd()
     {
         $filter = FilterFactory::create("g==h|e==f&c==d&a==b");
         $object = new \stdClass();
@@ -154,7 +154,7 @@ class MultiFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompoundComplexOrReverse()
+    public function testCompareCompoundCompoundComplexOrReverse()
     {
         $filter = FilterFactory::create("a==b&c==d|g==h|e==f");
         $object = new \stdClass();
@@ -183,7 +183,7 @@ class MultiFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMultiCompoundComplexAndReverse()
+    public function testCompareCompoundCompoundComplexAndReverse()
     {
         $filter = FilterFactory::create("c==d&a==b&g==h|e==f");
         $object = new \stdClass();
