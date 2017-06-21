@@ -37,32 +37,38 @@ class CompoundFilter implements FilterInterface
              * | as that is the last one to be evaluated. Then slice the array and process each slice
              * recursively. Only process & if there is no |. The actual order of evaluation is full right-to-left.
              */
-            $i = 1;
-            while ($i < count($expression)) {
-                $item = $expression[$i];
-                if ($item === '|') {
-                    return [
-                        'operator' => '|',
-                        'op1' => $this->processExpressionArray(array_slice($expression, 0, $i)),
-                        'op2' => $this->processExpressionArray(array_slice($expression, $i + 1))
-                    ];
-                }
-                $i = $i + 2;
+            $result = $this->checkOperator('|', $expression);
+            if ($result) {
+                return $result;
             }
-            $i = 1;
-            while ($i < count($expression)) {
-                $item = $expression[$i];
-                if ($item === '&') {
-                    return [
-                        'operator' => '&',
-                        'op1' => $this->processExpressionArray(array_slice($expression, 0, $i)),
-                        'op2' => $this->processExpressionArray(array_slice($expression, $i + 1))
-                    ];
-                }
-                $i = $i + 2;
+            $result = $this->checkOperator('&', $expression);
+            if ($result) {
+                return $result;
             }
             throw new FilterException("Invalid logical operator: '" . $expression[1] . "'.");
         }
+    }
+
+    /**
+     * @param $operator
+     * @param $expression
+     * @return array|null
+     */
+    private function checkOperator($operator, $expression)
+    {
+        $i = 1;
+        while ($i < count($expression)) {
+            $item = $expression[$i];
+            if ($item === $operator) {
+                return [
+                    'operator' => $operator,
+                    'op1' => $this->processExpressionArray(array_slice($expression, 0, $i)),
+                    'op2' => $this->processExpressionArray(array_slice($expression, $i + 1))
+                ];
+            }
+            $i = $i + 2;
+        }
+        return null;
     }
 
     /**
