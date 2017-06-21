@@ -8,19 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class FilterTest extends TestCase
 {
-    public function testStaticCompare()
-    {
-        self::assertTrue(Filter::staticCompare("test!#$#%$%{}", "test!#$#%$%{}", "=="));
-        self::assertFalse(Filter::staticCompare("test", "test", "!="));
-    }
-
-    public function testCompare()
-    {
-        $filter = new Filter(".>1");
-        self::assertTrue($filter->compare(2));
-        self::assertFalse($filter->compare(0));
-    }
-
     public function testCompareObject()
     {
         $filter = new Filter("field<=1");

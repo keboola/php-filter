@@ -14,11 +14,13 @@ class Filter
      * @var string
      */
     protected $columnName;
+
     /**
      * Operator to use for comparison
      * @var string
      */
     protected $operator;
+
     /**
      * Value to compare data against
      * @var string
@@ -81,33 +83,6 @@ class Filter
     }
 
     /**
-     * Compare a single value against $this->value using $this->operator
-     * @param string $value
-     * @return bool
-     * @throws FilterException
-     */
-    public function compare($value)
-    {
-        if (!method_exists($this, self::$methodList[$this->operator])) {
-            throw new FilterException("Method for {$this->operator} does not exist!");
-        }
-
-        return $this->{self::$methodList[$this->operator]}($value, $this->value);
-    }
-
-    /**
-     * @param mixed $value1
-     * @param mixed $value2
-     * @param string $operator
-     * @return bool
-     */
-    public static function staticCompare($value1, $value2, $operator)
-    {
-        $fn = self::$methodList[$operator];
-        return self::$fn($value1, $value2);
-    }
-
-    /**
      * Compare a value from within an object
      * using the $columnName, $operator and $value
      * @param \stdClass $object
@@ -118,6 +93,45 @@ class Filter
     {
         $value = \Keboola\Utils\getDataFromPath($this->columnName, $object, ".");
         return $this->compare($value);
+    }
+
+    /**
+     * @return string
+     */
+    public function getColumnName()
+    {
+        return $this->columnName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOperator()
+    {
+        return $this->operator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Compare a single value against $this->value using $this->operator
+     * @param string $value
+     * @return bool
+     * @throws FilterException
+     */
+    protected function compare($value)
+    {
+        if (!method_exists($this, self::$methodList[$this->operator])) {
+            throw new FilterException("Method for {$this->operator} does not exist!");
+        }
+
+        return $this->{self::$methodList[$this->operator]}($value, $this->value);
     }
 
     /**
@@ -202,29 +216,5 @@ class Filter
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
         return $ret == 0;
-    }
-
-    /**
-     * @return string
-     */
-    public function getColumnName()
-    {
-        return $this->columnName;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getOperator()
-    {
-        return $this->operator;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getValue()
-    {
-        return $this->value;
     }
 }
