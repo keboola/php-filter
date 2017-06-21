@@ -32,6 +32,11 @@ class CompoundFilter implements FilterInterface
         } elseif (count($expression) === 1) {
             return new Filter($expression[0]);
         } else {
+            /*
+             * Here we look for the first operator in the array. & takes precedence over |, so we first start with
+             * | as that is the last one to be evaluated. Then slice the array and process each slice
+             * recursively. Only process & if there is no |. The actual order of evaluation is full right-to-left.
+             */
             $i = 1;
             while ($i < count($expression)) {
                 $item = $expression[$i];

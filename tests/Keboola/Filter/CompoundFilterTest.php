@@ -56,7 +56,7 @@ class CompoundFilterTest extends TestCase
         self::assertFalse($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompound()
+    public function testCompareCompound()
     {
         $filter = FilterFactory::create("a==b&c==d|e==f");
         $object = new \stdClass();
@@ -76,7 +76,7 @@ class CompoundFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompoundReverse()
+    public function testCompareCompoundReverse()
     {
         $filter = FilterFactory::create("e==f|a==b&c==d");
         $object = new \stdClass();
@@ -96,7 +96,7 @@ class CompoundFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompoundComplexOr()
+    public function testCompareCompoundComplexOr()
     {
         $filter = FilterFactory::create("g==h|e==f|a==b&c==d");
         $object = new \stdClass();
@@ -125,7 +125,7 @@ class CompoundFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompoundComplexAnd()
+    public function testCompareCompoundComplexAnd()
     {
         $filter = FilterFactory::create("g==h|e==f&c==d&a==b");
         $object = new \stdClass();
@@ -154,7 +154,7 @@ class CompoundFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompoundComplexOrReverse()
+    public function testCompareCompoundComplexOrReverse()
     {
         $filter = FilterFactory::create("a==b&c==d|g==h|e==f");
         $object = new \stdClass();
@@ -183,7 +183,7 @@ class CompoundFilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareCompoundCompoundComplexAndReverse()
+    public function testCompareCompoundComplexAndReverse()
     {
         $filter = FilterFactory::create("c==d&a==b&g==h|e==f");
         $object = new \stdClass();
