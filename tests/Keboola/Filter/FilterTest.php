@@ -173,9 +173,8 @@ class FilterTest extends TestCase
         self::assertTrue($filter->compareObject($object));
     }
 
-    public function testCompareMulti()
+    public function testCompareMultiAnd()
     {
-        // &
         $filter = Filter::create("field1==0&field2!=0");
 
         $object = new \stdClass();
@@ -185,10 +184,11 @@ class FilterTest extends TestCase
 
         $object->field2 = 0;
         self::assertFalse($filter->compareObject($object));
+    }
 
-        // |
+    public function testCompareMultiOr()
+    {
         $filter = Filter::create("field1==0|field2!=0");
-
         $object = new \stdClass();
         $object->field1 = 0;
         $object->field2 = 1;
@@ -200,7 +200,10 @@ class FilterTest extends TestCase
         $object->field1 = 1;
         $object->field2 = 0;
         self::assertFalse($filter->compareObject($object));
+    }
 
+    public function testCompareMultiCompound()
+    {
         // & + |
         $filter = Filter::create("a==b&c==d|e==f");
         $object = new \stdClass();
