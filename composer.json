@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "keboola/php-utils": "^1.0",
+        "keboola/php-utils": "^2.2",
         "php": ">=7.0"
     },
     "require-dev": {
