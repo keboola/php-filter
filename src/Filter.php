@@ -11,29 +11,17 @@ use Keboola\Filter\Exception\FilterException;
  */
 class Filter implements FilterInterface
 {
-    /**
-     * Column to compare
-     * @var string
-     */
-    protected $columnName;
+    /** Column to compare */
+    protected string $columnName;
 
-    /**
-     * Operator to use for comparison
-     * @var string
-     */
-    protected $operator;
+    /** Operator to use for comparison */
+    protected string $operator;
 
-    /**
-     * Value to compare data against
-     * @var mixed
-     */
-    protected $value;
+    /** Value to compare data against */
+    protected string $value;
 
-    /**
-     * Allowed single-character comparison operators
-     * @var array
-     */
-    protected static $allowedScOperators = [
+    /** Allowed single-character comparison operators */
+    protected const ALLOWED_SC_OPERATORS = [
         '>',
         '<',
     ];
@@ -61,12 +49,12 @@ class Filter implements FilterInterface
             $operator = $operator[0];
         } else {
             preg_match('(>|<)', $filterString, $operator);
-            if (!empty($operator[0]) && in_array($operator[0], self::$allowedScOperators)) {
+            if (!empty($operator[0]) && in_array($operator[0], self::ALLOWED_SC_OPERATORS)) {
                 $operator = $operator[0];
             }
         }
 
-        $allowedOperators = array_merge(array_keys(self::$methodList), self::$allowedScOperators);
+        $allowedOperators = array_merge(array_keys(self::$methodList), self::ALLOWED_SC_OPERATORS);
         if (empty($operator) || !in_array($operator, $allowedOperators)) {
             throw new FilterException(
                 "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" .
@@ -83,8 +71,6 @@ class Filter implements FilterInterface
     /**
      * Compare a value from within an object
      * using the $columnName, $operator and $value
-     * @param \stdClass $object
-     * @return bool
      * @throws FilterException
      */
     public function compareObject(\stdClass $object): bool
@@ -110,8 +96,6 @@ class Filter implements FilterInterface
 
     /**
      * Compare a single value against $this->value using $this->operator
-     * @param string $value
-     * @return bool
      * @throws FilterException
      */
     protected function compare(string $value): bool
