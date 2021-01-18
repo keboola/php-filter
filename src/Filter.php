@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Filter;
 
 use Keboola\Filter\Exception\FilterException;
@@ -7,7 +9,7 @@ use Keboola\Filter\Exception\FilterException;
 /**
  * Filter objects using simple configuration strings
  */
-class Filter
+class Filter implements FilterInterface
 {
     /**
      * Column to compare
@@ -23,7 +25,7 @@ class Filter
 
     /**
      * Value to compare data against
-     * @var string
+     * @var mixed
      */
     protected $value;
 
@@ -32,8 +34,8 @@ class Filter
      * @var array
      */
     protected static $allowedScOperators = [
-        ">",
-        "<",
+        '>',
+        '<',
     ];
 
     /**
@@ -41,28 +43,24 @@ class Filter
      * @var array
      */
     protected static $methodList = [
-        "==" => "equals",
-        "!=" => "unequals",
-        ">=" => "biggerOrEquals",
-        "<=" => "lessOrEquals",
-        ">" => "bigger",
-        "<" => "less",
-        "~~" => "like",
-        "!~" => "unlike",
+        '==' => 'equals',
+        '!=' => 'unequals',
+        '>=' => 'biggerOrEquals',
+        '<=' => 'lessOrEquals',
+        '>' => 'bigger',
+        '<' => 'less',
+        '~~' => 'like',
+        '!~' => 'unlike',
     ];
 
-    /**
-     * @param $filterString
-     * @throws FilterException In case the filter is not recognized
-     */
-    public function __construct($filterString)
+    public function __construct(string $filterString)
     {
-        preg_match("(>=|<=|==|!=|~~|!~)", $filterString, $operator);
+        preg_match('(>=|<=|==|!=|~~|!~)', $filterString, $operator);
 
         if (!empty($operator[0]) && in_array($operator[0], array_keys(self::$methodList))) {
             $operator = $operator[0];
         } else {
-            preg_match("(>|<)", $filterString, $operator);
+            preg_match('(>|<)', $filterString, $operator);
             if (!empty($operator[0]) && in_array($operator[0], self::$allowedScOperators)) {
                 $operator = $operator[0];
             }
@@ -72,7 +70,7 @@ class Filter
         if (empty($operator) || !in_array($operator, $allowedOperators)) {
             throw new FilterException(
                 "Error creating a filter from {$filterString}: Operator couldn't be determined. Please use one of [" .
-                implode(", ", $allowedOperators) . "]"
+                implode(', ', $allowedOperators) . ']'
             );
         }
 
@@ -89,32 +87,23 @@ class Filter
      * @return bool
      * @throws FilterException
      */
-    public function compareObject(\stdClass $object)
+    public function compareObject(\stdClass $object): bool
     {
-        $value = \Keboola\Utils\getDataFromPath($this->columnName, $object, ".");
+        $value = (string) \Keboola\Utils\getDataFromPath($this->columnName, $object, '.');
         return $this->compare($value);
     }
 
-    /**
-     * @return string
-     */
-    public function getColumnName()
+    public function getColumnName(): string
     {
         return $this->columnName;
     }
 
-    /**
-     * @return string
-     */
-    public function getOperator()
+    public function getOperator(): string
     {
         return $this->operator;
     }
 
-    /**
-     * @return string
-     */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -125,7 +114,7 @@ class Filter
      * @return bool
      * @throws FilterException
      */
-    protected function compare($value)
+    protected function compare(string $value): bool
     {
         if (!method_exists($this, self::$methodList[$this->operator])) {
             throw new FilterException("Method for {$this->operator} does not exist!");
@@ -139,9 +128,9 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function equals($value1, $value2)
+    protected static function equals($value1, $value2): bool
     {
-        return $value1 == $value2;
+        return $value1 === $value2;
     }
 
     /**
@@ -149,9 +138,9 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function unequals($value1, $value2)
+    protected static function unequals($value1, $value2): bool
     {
-        return $value1 != $value2;
+        return $value1 !== $value2;
     }
 
     /**
@@ -159,7 +148,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function biggerOrEquals($value1, $value2)
+    protected static function biggerOrEquals($value1, $value2): bool
     {
         return $value1 >= $value2;
     }
@@ -169,7 +158,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function lessOrEquals($value1, $value2)
+    protected static function lessOrEquals($value1, $value2): bool
     {
         return $value1 <= $value2;
     }
@@ -179,7 +168,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function bigger($value1, $value2)
+    protected static function bigger($value1, $value2): bool
     {
         return $value1 > $value2;
     }
@@ -189,7 +178,7 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function less($value1, $value2)
+    protected static function less($value1, $value2): bool
     {
         return $value1 < $value2;
     }
@@ -199,11 +188,11 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function like($value1, $value2)
+    protected static function like($value1, $value2): bool
     {
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
-        return $ret == 1;
+        return $ret === 1;
     }
 
     /**
@@ -211,10 +200,10 @@ class Filter
      * @param mixed $value2
      * @return bool
      */
-    protected static function unlike($value1, $value2)
+    protected static function unlike($value1, $value2): bool
     {
         $regexp = '#^' . str_replace('%', '.*?', preg_quote($value2, '#')) . '$#';
         $ret = preg_match($regexp, $value1);
-        return $ret == 0;
+        return $ret === 0;
     }
 }
