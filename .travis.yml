@@ -18,4 +18,4 @@ after_script:
   - chmod +x ./cc-test-reporter
   - ls $(pwd)/build
   - ./cc-test-reporter format-coverage --prefix /code
-  - ./cc-test-reporter upload-coverage
+  - ./cc-test-reporter upload-coverage -r $CODECLIMATE_REPO_TOKEN
