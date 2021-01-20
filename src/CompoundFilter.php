@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Filter;
 
 use Keboola\Filter\Exception\FilterException;
@@ -7,21 +9,16 @@ use Keboola\Filter\Exception\FilterException;
 class CompoundFilter implements FilterInterface
 {
     /**
-     * @var array
+     * @var array|Filter
      */
     private $expression;
 
-    /**
-     * CompoundFilter constructor.
-     * @param array $logicalExpression
-     */
     public function __construct(array $logicalExpression)
     {
         $this->expression = $this->processExpressionArray($logicalExpression);
     }
 
     /**
-     * @param array $expression
      * @return array|Filter
      * @throws FilterException
      */
@@ -50,11 +47,11 @@ class CompoundFilter implements FilterInterface
     }
 
     /**
-     * @param $operator
-     * @param $expression
+     * @param mixed $operator
+     * @param mixed $expression
      * @return array|null
      */
-    private function checkOperator($operator, $expression)
+    private function checkOperator($operator, $expression): ?array
     {
         $i = 1;
         while ($i < count($expression)) {
@@ -63,7 +60,7 @@ class CompoundFilter implements FilterInterface
                 return [
                     'operator' => $operator,
                     'op1' => $this->processExpressionArray(array_slice($expression, 0, $i)),
-                    'op2' => $this->processExpressionArray(array_slice($expression, $i + 1))
+                    'op2' => $this->processExpressionArray(array_slice($expression, $i + 1)),
                 ];
             }
             $i = $i + 2;
@@ -76,7 +73,7 @@ class CompoundFilter implements FilterInterface
      * @param array|Filter $operand
      * @return bool
      */
-    private function evaluate(\stdClass $object, $operand)
+    private function evaluate(\stdClass $object, $operand): bool
     {
         if ($operand instanceof Filter) {
             return $operand->compareObject($object);
@@ -86,24 +83,18 @@ class CompoundFilter implements FilterInterface
     }
 
     /**
-     * @param \stdClass $object
-     * @param $expression
-     * @return bool
+     * @param mixed $expression
      */
-    private function compareExpression(\stdClass $object, $expression)
+    private function compareExpression(\stdClass $object, $expression): bool
     {
-        if ($expression['operator'] == '&') {
+        if ($expression['operator'] === '&') {
             return $this->evaluate($object, $expression['op1']) && $this->evaluate($object, $expression['op2']);
         } else {
             return $this->evaluate($object, $expression['op1']) || $this->evaluate($object, $expression['op2']);
         }
     }
 
-    /**
-     * @param \stdClass $object
-     * @return bool
-     */
-    public function compareObject(\stdClass $object)
+    public function compareObject(\stdClass $object): bool
     {
         return $this->compareExpression($object, $this->expression);
     }
