@@ -121,3 +121,7 @@ Parentheses are not supported, however the standard operator precedence is
 applied (`&` precedes `|`). For example, the expression
 `a==b&c==d|e==f` is interpreted as `(a==b&c==d)|e==f` and the  
 expression `a==b&c==d|e==f&g==h` translates into `(a==b&c==d)|(e==f&g==h)`.
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
